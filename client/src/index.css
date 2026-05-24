@@ -4,6 +4,9 @@
 
 html, body, #root {
   height: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
 }
 
 body {
@@ -17,22 +20,40 @@ body {
 }
 
 .app-viewport {
-  min-height: calc(100 * var(--vh, 1vh));
+  height: 100%;
+  overflow-y: auto;
 }
 
+/* Game viewport: fixed to screen height, no scroll */
 .game-viewport {
-  min-height: calc(100 * var(--vh, 1vh));
+  height: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Scrollable inner area: board + controls, shrinks to fit */
+.game-scroll-area {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 .board-grid {
   width: 100%;
-  max-width: min(640px, calc(100 * var(--vh, 1vh) - 360px));
+  /* Board is square — constrain by both viewport width and available vertical space */
+  max-width: min(100vw - 24px, calc(100dvh - 240px));
   margin-left: auto;
   margin-right: auto;
+  aspect-ratio: 1 / 1;
 }
 
 @media (min-width: 640px) {
   .board-grid {
-    max-width: min(640px, calc(100 * var(--vh, 1vh) - 320px));
+    max-width: min(600px, calc(100dvh - 200px));
   }
 }

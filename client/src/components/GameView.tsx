@@ -408,7 +408,7 @@ export function GameView() {
 
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <div className="game-viewport flex flex-col gap-3 px-3 py-3 sm:py-4 max-w-3xl mx-auto">
+      <div className="game-viewport gap-3 px-3 py-3 sm:py-4 max-w-3xl mx-auto overflow-y-auto">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
