@@ -328,7 +328,7 @@ export function GameView() {
 
   if (error && !state) {
     return (
-      <div className="min-h-screen font-mono text-neutral-200 px-3 py-6 max-w-3xl mx-auto">
+      <div className="app-viewport font-mono text-neutral-200 px-3 py-6 max-w-3xl mx-auto">
         <Link to="/" className="text-xs text-neutral-400 hover:text-neutral-200">
           ← Matches
         </Link>
@@ -341,7 +341,7 @@ export function GameView() {
 
   if (!state || !viewBoard) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-neutral-400">
+      <div className="app-viewport flex items-center justify-center text-neutral-400">
         Loading…
       </div>
     );
@@ -374,7 +374,7 @@ export function GameView() {
 
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <div className="min-h-screen flex flex-col gap-3 px-3 py-3 sm:py-4 max-w-3xl mx-auto">
+      <div className="game-viewport flex flex-col gap-3 px-3 py-3 sm:py-4 max-w-3xl mx-auto">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link

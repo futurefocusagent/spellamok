@@ -130,7 +130,7 @@ export function Board({
   }
 
   return (
-    <div className="grid grid-cols-10 gap-[2px] bg-black/70 p-[2px] rounded-md w-full max-w-[640px] mx-auto select-none">
+    <div className="board-grid grid grid-cols-10 gap-[2px] bg-black/70 p-[2px] rounded-md select-none">
       {board.map((row, r) =>
         row.map((cell, c) => {
           const key = `${r}-${c}`;

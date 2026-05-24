@@ -58,7 +58,7 @@ export function Lobby() {
   }
 
   return (
-    <div className="min-h-screen font-mono text-neutral-200 px-3 py-6 max-w-2xl mx-auto">
+    <div className="app-viewport font-mono text-neutral-200 px-3 py-6 max-w-2xl mx-auto">
       <header className="flex items-center justify-between mb-6">
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
           <span className="text-amber-300">Spell</span>amok
