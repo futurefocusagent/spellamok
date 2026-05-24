@@ -3,16 +3,15 @@
 @tailwind utilities;
 
 html, body, #root {
-  height: 100%;
   height: 100dvh;
   max-height: 100dvh;
   overflow: hidden;
+  overscroll-behavior-y: none;
 }
 
 body {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  overscroll-behavior-y: none;
 }
 
 .tile-shadow {
@@ -24,9 +23,8 @@ body {
   overflow-y: auto;
 }
 
-/* Game viewport: fixed to screen height, no scroll */
+/* Game viewport: locked to screen height, no scroll anywhere */
 .game-viewport {
-  height: 100%;
   height: 100dvh;
   max-height: 100dvh;
   display: flex;
@@ -34,26 +32,27 @@ body {
   overflow: hidden;
 }
 
-/* Scrollable inner area: board + controls, shrinks to fit */
-.game-scroll-area {
+/* Wrapper around the board: takes all remaining vertical space, centers board */
+.board-container {
   flex: 1 1 0;
   min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
+/* Board is a square that fills its container, capped by viewport dims */
 .board-grid {
-  width: 100%;
-  /* Board is square — constrain by both viewport width and available vertical space */
-  max-width: min(100vw - 24px, calc(100dvh - 240px));
-  margin-left: auto;
-  margin-right: auto;
   aspect-ratio: 1 / 1;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
 }
 
 @media (min-width: 640px) {
   .board-grid {
-    max-width: min(600px, calc(100dvh - 200px));
+    max-width: min(600px, 100%);
   }
 }

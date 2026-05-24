@@ -408,7 +408,7 @@ export function GameView() {
 
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <div className="game-viewport gap-3 px-3 py-3 sm:py-4 max-w-3xl mx-auto overflow-y-auto">
+      <div className="game-viewport gap-2 px-3 py-2 sm:py-3 max-w-3xl mx-auto w-full">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
@@ -476,17 +476,19 @@ export function GameView() {
           </div>
         </div>
 
-        <Board
-          board={viewBoard}
-          pending={pending}
-          blockZones={state.blockZones}
-          words={state.words}
-          lastMovePlacements={lastMovePlacements}
-          humanPlayer={0}
-          targetingMode={targetingMode}
-          onCellClick={handleCellClick}
-          onWordClick={handleWordClick}
-        />
+        <div className="board-container">
+          <Board
+            board={viewBoard}
+            pending={pending}
+            blockZones={state.blockZones}
+            words={state.words}
+            lastMovePlacements={lastMovePlacements}
+            humanPlayer={0}
+            targetingMode={targetingMode}
+            onCellClick={handleCellClick}
+            onWordClick={handleWordClick}
+          />
+        </div>
 
         {error && (
           <div className="text-sm text-red-400 bg-red-900/30 border border-red-700/50 rounded px-2 py-1">
