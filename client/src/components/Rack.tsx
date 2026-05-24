@@ -10,6 +10,9 @@ interface Props {
   swapMode?: boolean;
   swapSelected?: Set<number>;
   onSwapToggle?: (idx: number) => void;
+  displayOrder?: number[] | null;
+  onShuffle?: () => void;
+  shuffleDisabled?: boolean;
 }
 
 function DraggableRackTile({
@@ -54,8 +57,22 @@ function DraggableRackTile({
   );
 }
 
-export function Rack({ rack, usedIndices, label, swapMode, swapSelected, onSwapToggle }: Props) {
+export function Rack({
+  rack,
+  usedIndices,
+  label,
+  swapMode,
+  swapSelected,
+  onSwapToggle,
+  displayOrder,
+  onShuffle,
+  shuffleDisabled,
+}: Props) {
   const { setNodeRef, isOver } = useDroppable({ id: 'rack' });
+  const order =
+    displayOrder && displayOrder.length === rack.length
+      ? displayOrder
+      : rack.map((_, i) => i);
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div className="text-xs uppercase tracking-widest text-neutral-400">{label}</div>
@@ -66,18 +83,32 @@ export function Rack({ rack, usedIndices, label, swapMode, swapSelected, onSwapT
         }`}
       >
         {rack.length === 0 && <div className="text-neutral-600 px-3 py-2 text-sm">empty</div>}
-        {rack.map((t, i) => (
-          <DraggableRackTile
-            key={`rack-tile-${i}`}
-            tile={t}
-            idx={i}
-            used={usedIndices.has(i)}
-            swapMode={!!swapMode}
-            swapSelected={!!swapSelected?.has(i)}
-            onSwapToggle={onSwapToggle}
-          />
-        ))}
+        {order.map((i) => {
+          const t = rack[i];
+          if (!t) return null;
+          return (
+            <DraggableRackTile
+              key={`rack-tile-${i}`}
+              tile={t}
+              idx={i}
+              used={usedIndices.has(i)}
+              swapMode={!!swapMode}
+              swapSelected={!!swapSelected?.has(i)}
+              onSwapToggle={onSwapToggle}
+            />
+          );
+        })}
       </div>
+      {onShuffle && (
+        <button
+          type="button"
+          onClick={onShuffle}
+          disabled={shuffleDisabled || rack.length <= 1}
+          className="text-xs px-2 py-1 rounded border border-neutral-700 bg-neutral-900 hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          🔀 Shuffle
+        </button>
+      )}
     </div>
   );
 }

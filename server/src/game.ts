@@ -27,7 +27,7 @@ export const ALL_ITEMS: ItemType[] = [
   'PEEK',
 ];
 
-const games = new Map<string, GameState>();
+import { randomUUID } from 'crypto';
 
 function genId(prefix: string): string {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -39,7 +39,7 @@ export function createGame(): GameState {
   const p0Rack = drawTiles(bag, RACK_SIZE);
   const p1Rack = drawTiles(bag, RACK_SIZE);
   const state: GameState = {
-    id: genId('game'),
+    id: randomUUID(),
     board,
     players: [
       { rack: p0Rack, score: 0, items: [] },
@@ -56,12 +56,7 @@ export function createGame(): GameState {
     peekActive: false,
     log: [`Game started. Human goes first.`],
   };
-  games.set(state.id, state);
   return state;
-}
-
-export function getGame(id: string): GameState | undefined {
-  return games.get(id);
 }
 
 function refillRack(state: GameState, playerIdx: PlayerIdx) {

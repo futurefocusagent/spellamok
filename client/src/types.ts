@@ -76,6 +76,14 @@ export interface GameState {
   log: string[];
 }
 
+export interface MatchSummary {
+  id: string;
+  created_at: string;
+  status: 'in_progress' | 'finished' | string;
+  human_score: number;
+  computer_score: number;
+}
+
 export const ITEM_LABELS: Record<ItemType, string> = {
   STEAL_WORD: 'Steal Word',
   STEAL_LETTERS: 'Steal Letters',

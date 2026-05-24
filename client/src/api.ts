@@ -1,4 +1,4 @@
-import type { GameState, ItemType, Placement } from './types';
+import type { GameState, ItemType, MatchSummary, Placement } from './types';
 
 async function call<T>(url: string, method = 'GET', body?: unknown): Promise<T> {
   const res = await fetch(url, {
@@ -22,6 +22,7 @@ async function call<T>(url: string, method = 'GET', body?: unknown): Promise<T> 
 }
 
 export const api = {
+  listMatches: () => call<MatchSummary[]>('/api/matches'),
   newGame: () => call<GameState>('/api/game/new', 'POST'),
   getGame: (id: string) => call<GameState>(`/api/game/${id}`),
   move: (id: string, placements: Placement[]) =>
