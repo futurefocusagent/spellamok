@@ -10,6 +10,7 @@ import {
 } from '@dnd-kit/core';
 import { api } from '../api';
 import type { GameState, ItemType, Placement, Tile } from '../types';
+import { ITEM_LABELS } from '../types';
 import { Board } from './Board';
 import { Rack } from './Rack';
 import { ItemPanel } from './ItemPanel';
@@ -241,6 +242,20 @@ export function GameView() {
     }
   }
 
+  async function skipItemPhase() {
+    if (!state || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const s = await api.skipItemPhase(state.id);
+      applyNewState(s);
+    } catch (e: any) {
+      setError(e?.message ?? String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function passTurn() {
     if (!state || busy) return;
     setBusy(true);
@@ -368,8 +383,9 @@ export function GameView() {
   const human = state.players[0];
   const computer = state.players[1];
   const humansTurn = state.currentTurn === 0 && !state.gameOver;
-  const canPlay = humansTurn && pending.length > 0 && !busy && !thinking && !activeItem;
-  const itemDisabled = !humansTurn || busy || thinking || pending.length > 0;
+  const inItemPhase = humansTurn && state.phase === 'item';
+  const canPlay = humansTurn && !inItemPhase && pending.length > 0 && !busy && !thinking && !activeItem;
+  const itemDisabled = !humansTurn || inItemPhase || busy || thinking || pending.length > 0;
 
   const lastMovePlacements =
     state.lastMove && hiddenCells.size === 0 && !thinking
@@ -408,6 +424,39 @@ export function GameView() {
         </header>
 
         <ScoreBoard state={state} thinking={thinking} />
+
+        {/* Item Phase: must use or skip before playing */}
+        {inItemPhase && (
+          <div className="rounded-lg border border-amber-500/60 bg-amber-950/40 p-4 flex flex-col gap-3">
+            <div className="text-sm font-semibold text-amber-300 tracking-wide">⚔️ Item Phase</div>
+            <p className="text-xs text-neutral-300">
+              Use one item before playing your word, or skip.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {state.players[0].items.length === 0 ? (
+                <span className="text-xs text-neutral-500 italic">No items held — skip to continue.</span>
+              ) : (
+                state.players[0].items.map((item, i) => (
+                  <button
+                    key={i}
+                    onClick={() => activateItem(item)}
+                    disabled={busy || !!activeItem}
+                    className="px-3 py-1.5 rounded bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-sm font-medium text-white"
+                  >
+                    {ITEM_LABELS[item]}
+                  </button>
+                ))
+              )}
+            </div>
+            <button
+              onClick={() => void skipItemPhase()}
+              disabled={busy || !!activeItem}
+              className="self-start px-3 py-1 rounded border border-neutral-600 bg-neutral-800 hover:bg-neutral-700 text-sm text-neutral-300 disabled:opacity-50"
+            >
+              Skip →
+            </button>
+          </div>
+        )}
 
         <div className="flex flex-col items-center">
           <div className="text-[10px] uppercase tracking-widest text-neutral-500">
@@ -474,7 +523,7 @@ export function GameView() {
           </button>
           <button
             onClick={() => void passTurn()}
-            disabled={!humansTurn || busy || thinking || pending.length > 0 || !!activeItem}
+            disabled={!humansTurn || inItemPhase || busy || thinking || pending.length > 0 || !!activeItem}
             className="px-3 py-1.5 rounded bg-neutral-700 hover:bg-neutral-600 disabled:bg-neutral-900 disabled:text-neutral-600 text-sm"
           >
             Pass

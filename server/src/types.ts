@@ -60,12 +60,15 @@ export interface LastMove {
   passed?: boolean;
 }
 
+export type TurnPhase = 'item' | 'play';
+
 export interface GameState {
   id: string;
   board: BoardCell[][];
   players: [Player, Player];
   bag: Tile[];
   currentTurn: PlayerIdx;
+  phase: TurnPhase;  // 'item' = must resolve item phase before playing
   words: PlacedWord[];
   blockZones: BlockZone[];
   passCount: number;

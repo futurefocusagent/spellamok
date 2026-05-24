@@ -7,6 +7,7 @@ import {
   applyHumanMove,
   applyPass,
   applyUseItem,
+  applyItemPhaseSkip,
   runComputerTurn,
   viewForHuman,
 } from './game';
@@ -117,6 +118,20 @@ app.post('/api/game/:id/use-item', async (req: Request, res: Response) => {
   } catch (e) {
     console.error('use-item failed', e);
     res.status(500).json({ error: 'Failed to use item' });
+  }
+});
+
+app.post('/api/game/:id/skip-item-phase', async (req: Request, res: Response) => {
+  try {
+    const state = await loadGame(req.params.id);
+    if (!state) return res.status(404).json({ error: 'Game not found' });
+    const r = applyItemPhaseSkip(state);
+    if (!r.ok) return res.status(400).json({ error: r.error, state: viewForHuman(state) });
+    await saveGame(state);
+    res.json(viewForHuman(state));
+  } catch (e) {
+    console.error('skip-item-phase failed', e);
+    res.status(500).json({ error: 'Failed to skip item phase' });
   }
 });
 

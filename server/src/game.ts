@@ -16,7 +16,6 @@ import { loadWords } from './words';
 import { findBestMove, aiChooseItem } from './ai';
 
 export const RACK_SIZE = 7;
-export const ITEM_THRESHOLD = 20;
 export const MAX_ITEMS = 3;
 export const ALL_ITEMS: ItemType[] = [
   'STEAL_WORD',
@@ -47,6 +46,7 @@ export function createGame(): GameState {
     ],
     bag,
     currentTurn: 0,
+    phase: 'play', // first human turn has no item phase
     words: [],
     blockZones: [],
     passCount: 0,
@@ -95,12 +95,14 @@ function tickBlockZones(state: GameState, currentPlayer: PlayerIdx) {
   state.blockZones = state.blockZones.filter((z) => z.turnsLeft > 0);
 }
 
-function maybeAwardItem(player: Player, score: number, log: string[], playerName: string) {
-  if (score >= ITEM_THRESHOLD && player.items.length < MAX_ITEMS) {
+function awardItemIfRoom(player: Player, log: string[], pName: string) {
+  if (player.items.length < MAX_ITEMS) {
     const item = ALL_ITEMS[Math.floor(Math.random() * ALL_ITEMS.length)];
     player.items.push(item);
-    log.push(`${playerName} earned an item: ${formatItemName(item)}!`);
+    log.push(`${pName} earned an item: ${formatItemName(item)}!`);
+    return item;
   }
+  return null;
 }
 
 export function formatItemName(item: ItemType): string {
@@ -178,17 +180,16 @@ export function applyHumanMove(state: GameState, placements: Placement[]): { ok:
   };
   state.log.push(`Human played ${lastMove.mainWord} for ${result.score} points.`);
 
-  const itemsBefore = state.players[0].items.length;
-  maybeAwardItem(state.players[0], result.score, state.log, 'Human');
-  if (state.players[0].items.length > itemsBefore) {
-    lastMove.itemEarned = state.players[0].items[state.players[0].items.length - 1];
-  }
+  // Award item to human after every play (if under cap)
+  const earned = awardItemIfRoom(state.players[0], state.log, 'Human');
+  lastMove.itemEarned = earned;
 
   state.lastMove = lastMove;
   checkGameEnd(state);
 
   if (!state.gameOver) {
     state.currentTurn = 1;
+    state.phase = 'play'; // computer doesn't have an item phase UI
     state.peekActive = false;
     tickBlockZones(state, 1);
   }
@@ -340,6 +341,10 @@ export function applyUseItem(
   }
 
   p.items.splice(idx, 1);
+  // If human used item during item phase, advance to play phase
+  if (player === 0 && state.phase === 'item') {
+    state.phase = 'play';
+  }
   return { ok: true };
 }
 
@@ -388,19 +393,28 @@ export function runComputerTurn(state: GameState): void {
   };
   state.log.push(`Computer played ${lastMove.mainWord} for ${result.score} points.`);
 
-  const itemsBefore = state.players[1].items.length;
-  maybeAwardItem(state.players[1], result.score, state.log, 'Computer');
-  if (state.players[1].items.length > itemsBefore) {
-    lastMove.itemEarned = state.players[1].items[state.players[1].items.length - 1];
-  }
+  // Award item to computer after every play (if under cap)
+  lastMove.itemEarned = awardItemIfRoom(state.players[1], state.log, 'Computer');
 
   state.lastMove = lastMove;
   checkGameEnd(state);
 
   if (!state.gameOver) {
     state.currentTurn = 0;
+    // Human enters item phase: must use or skip before playing
+    state.phase = 'item';
     tickBlockZones(state, 0);
   }
+}
+
+/** Human resolves item phase without using an item (skip). */
+export function applyItemPhaseSkip(state: GameState): { ok: boolean; error?: string } {
+  if (state.gameOver) return { ok: false, error: 'Game is over' };
+  if (state.currentTurn !== 0) return { ok: false, error: 'Not your turn' };
+  if (state.phase !== 'item') return { ok: false, error: 'Not in item phase' };
+  state.phase = 'play';
+  state.log.push('Human skipped item phase.');
+  return { ok: true };
 }
 
 // View state with peek visibility applied

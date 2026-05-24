@@ -30,4 +30,6 @@ export const api = {
   pass: (id: string) => call<GameState>(`/api/game/${id}/pass`, 'POST', {}),
   useItem: (id: string, item: ItemType, target?: any) =>
     call<GameState>(`/api/game/${id}/use-item`, 'POST', { item, target }),
+  skipItemPhase: (id: string) =>
+    call<GameState>(`/api/game/${id}/skip-item-phase`, 'POST', {}),
 };
