@@ -328,7 +328,7 @@ export function GameView() {
 
   if (error && !state) {
     return (
-      <div className="app-viewport font-mono text-neutral-200 px-3 py-6 max-w-3xl mx-auto">
+      <div className="app-viewport font-sans text-neutral-200 px-3 py-6 max-w-3xl mx-auto">
         <Link to="/" className="text-xs text-neutral-400 hover:text-neutral-200">
           ← Matches
         </Link>
