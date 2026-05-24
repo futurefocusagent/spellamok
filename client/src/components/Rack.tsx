@@ -15,6 +15,7 @@ interface Props {
   shuffleDisabled?: boolean;
 }
 
+/** A rack slot that acts as both a draggable tile AND a drop target for rack reordering. */
 function DraggableRackTile({
   tile,
   idx,
@@ -30,11 +31,23 @@ function DraggableRackTile({
   swapSelected: boolean;
   onSwapToggle?: (idx: number) => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef: setDragRef, transform, isDragging } = useDraggable({
     id: `rack-${idx}`,
     data: { kind: 'rack', rackIndex: idx, tile },
     disabled: used || swapMode,
   });
+  // Also make each rack slot a drop target so other rack tiles can be reordered onto it
+  const { setNodeRef: setDropRef, isOver: isDropOver } = useDroppable({
+    id: `rack-slot-${idx}`,
+    data: { kind: 'rack-slot', rackIndex: idx },
+  });
+
+  // Merge refs
+  function setRef(el: HTMLElement | null) {
+    setDragRef(el);
+    setDropRef(el);
+  }
+
   const style: React.CSSProperties = {
     transform: CSS.Translate.toString(transform),
     touchAction: 'none',
@@ -43,11 +56,13 @@ function DraggableRackTile({
   };
   return (
     <div
-      ref={setNodeRef}
+      ref={setRef}
       {...(swapMode ? {} : listeners)}
       {...attributes}
       style={style}
-      className={`w-11 h-11 sm:w-12 sm:h-12 ${swapSelected ? 'ring-2 ring-cyan-400' : ''}`}
+      className={`w-11 h-11 sm:w-12 sm:h-12 rounded transition-transform ${
+        isDropOver && !used ? 'scale-110 ring-2 ring-amber-400' : ''
+      } ${swapSelected ? 'ring-2 ring-cyan-400' : ''}`}
       onClick={() => {
         if (swapMode && onSwapToggle) onSwapToggle(idx);
       }}

@@ -179,6 +179,24 @@ export function GameView() {
       if (overId.startsWith('cell-')) {
         const [, rs, cs] = overId.split('-');
         placeOnCell(data.rackIndex, data.tile, Number(rs), Number(cs));
+      } else if (overId.startsWith('rack-slot-')) {
+        // Reorder within rack
+        const targetRackIndex = Number(overId.replace('rack-slot-', ''));
+        const fromRackIndex = data.rackIndex;
+        if (fromRackIndex === targetRackIndex) return;
+        if (usedRackIndices.has(fromRackIndex)) return; // can't move placed tile
+        const rackLen = state.players[0].rack.length;
+        const base = rackOrder && rackOrder.length === rackLen
+          ? [...rackOrder]
+          : Array.from({ length: rackLen }, (_, i) => i);
+        // Find positions in display order
+        const fromPos = base.indexOf(fromRackIndex);
+        const toPos = base.indexOf(targetRackIndex);
+        if (fromPos === -1 || toPos === -1) return;
+        // Move fromPos to toPos
+        base.splice(fromPos, 1);
+        base.splice(toPos, 0, fromRackIndex);
+        setRackOrder(base);
       }
     } else if (data?.kind === 'pending') {
       const placement: Placement = data.placement;
